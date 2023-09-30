@@ -69,8 +69,10 @@ def contains_label(labels: pd.Series, label: str) -> pd.Series:
 
     ATTENTION: Ce n'est pas suffisant de juste utiliser .contains
     """
-    # BUG: Found 5708 rows, correct amount is 5695
-    return labels[labels.str.contains(label, regex=False, case = True)].reset_index(drop=True)
+    ans = labels.map(lambda x: label in x.split("|"))
+    return labels[ans]
+    # # BUG: Found 5708 rows, correct amount is 5695
+    # return labels[labels.str.contains(label, regex=False, case = True)]
 
 
 def get_conditional_proportion(labels: pd.Series, label_1: str, label_2: str) -> float:

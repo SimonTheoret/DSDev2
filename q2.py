@@ -11,35 +11,42 @@ from os.path import exists
 
 def download_audio(YTID: str, path: str) -> None:
     """
-<<<<<<< HEAD
-    Créez une fonction qui télécharge l'audio de la vidéo Youtube avec un identifiant donné
-    et l'enregistre dans le dossier donné par `path`. Téléchargez-le en mp3. S'il y a un problème lors du téléchargement du fichier, gérez l'exception. Si il y a déjà un fichier à `path`, la fonction devrait retourner sans tenter de le télécharger à nouveau.
+    Créez une fonction qui télécharge l'audio de la vidéo Youtube avec un
+    identifiant donné et l'enregistre dans le dossier donné par `path`.
+    Téléchargez-le en mp3. S'il y a un problème lors du téléchargement du
+    fichier, gérez l'exception. Si il y a déjà un fichier à `path`, la fonction
+    devrait retourner sans tenter de le télécharger à nouveau.
 
     ** Utilisez la librairie yt-dlp: https://github.com/yt-dlp/yt-dlp **
-    (https://github.com/yt-dlp/yt-dlp#embedding-examples est particulièrement utile)
-    Assurez-vous que le fichier est sauvegardé exactement à <path> (et qu'il n'y a pas de .mp3 extra ajoutés)
+    (https://github.com/yt-dlp/yt-dlp#embedding-examples est particulièrement
+    utile) Assurez-vous que le fichier est sauvegardé exactement à <path> (et
+    qu'il n'y a pas de .mp3 extra ajoutés)
 
-    Arguments :
-    - YTID : Contient l'identifiant youtube, la vidéo youtube correspondante peut être trouvée sur
-    'https://www.youtube.com/watch?v='+YTID
+    Arguments : - YTID : Contient l'identifiant youtube, la vidéo youtube
+    correspondante peut être trouvée sur 'https://www.youtube.com/watch?v='+YTID
     - path : Le chemin d'accès au fichier où l'audio sera enregistré
     """
     # TODO
-    if exists(path) == True:
+    if exists(path+f"/{YTID}.mp3") == True:
+        print("Video already downloaded")
         return
 
-    url = 'https://www.youtube.com/watch?v='+YTID
+    url = "https://www.youtube.com/watch?v=" + YTID
     ydl_opts = {
-        'format': 'mp3',
-        # ℹ️ See help(yt_dlp.postprocessor) for a list of available Postprocessors and their arguments
-        'postprocessors': [{  # Extract audio using ffmpeg
-            'key': 'FFmpegExtractAudio',
-            "preferredcoded": "mp3"
-        }],
-        "output": path
+        "format": "mp3/bestaudio/best",
+        "postprocessors": [
+            {  # Extract audio using ffmpeg
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "mp3",
+            }
+        ],
+        "outtmpl": path+f"/{YTID}"
     }
     with YoutubeDL(ydl_opts) as ydl:
-        ydl.download(url)
+        try:
+            ydl.download(url)
+        except:
+            print(f"url: {url} cannot be downloaded")
 
 
 def cut_audio(in_path: str, out_path: str, start: float, end: float) -> None:
@@ -54,8 +61,11 @@ def cut_audio(in_path: str, out_path: str, start: float, end: float) -> None:
     - end : Indique la fin de la séquence (en secondes)
     """
     # TODO
-    input = ffmpeg.input(in_path)
-    input.trim(start = start, end = end)
-    with open(out_path, "w") as f:
-        f.write()
-    pass
+    ffmpeg.input(in_path, ss=start, t=end - start).output(out_path).run()
+
+
+if __name__ == "__main__":
+    id = "dIjUtfSSJ6Q"
+    path = "./output"
+    download_audio(id, path)
+    cut_audio(path+"/"+id+".mp3", "./output/out.mp3", 1, 3)
