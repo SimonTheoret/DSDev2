@@ -17,7 +17,7 @@ def filter_df(csv_path: str, label: str) -> pd.DataFrame:
     """
     # TODO
     df = pd.read_csv(csv_path)
-    index = df["label_names"].map(lambda x: label in x)
+    index = df["label_names"].map(lambda x: label in x.split("|"))
     return df[index]
 
 
@@ -43,8 +43,8 @@ def data_pipeline(csv_path: str, label: str) -> None:
         serie = serie.T
         YTID = serie["# YTID"]
         download_audio(serie["# YTID"], f"./{label}_raw")
-        start = serie["start_seconds"]
-        end = serie["end_seconds"]
+        start = serie[" start_seconds"]
+        end = serie[" end_seconds"]
         in_path = f"./{label}_raw/{YTID}.mp3"
         out_path = f"./{label}_cut/{YTID}.mp3"
         out_dir = f"./{label}_cut/"
