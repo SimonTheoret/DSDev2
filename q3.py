@@ -42,7 +42,7 @@ def data_pipeline(csv_path: str, label: str) -> None:
     def go(serie: pd.Series) -> None:
         serie = serie.T
         YTID = serie["# YTID"]
-        download_audio(serie["# YTID"], f"./{label}_raw")
+        download_audio(serie["# YTID"], f"./{label}_raw/{ YTID }")
         start = serie[" start_seconds"]
         end = serie[" end_seconds"]
         in_path = f"./{label}_raw/{YTID}.mp3"
@@ -55,21 +55,6 @@ def data_pipeline(csv_path: str, label: str) -> None:
         cut_audio(in_path, out_path, start, end)
     tqdm.pandas(desc = "Advancement")
     filter_df(csv_path, label).progress_apply(go, axis =1)
-
-    # for serie in tqdm(filter_df(csv_path, label).iterrows()):
-    #     YTID = serie["# YTID"]
-    #     download_audio(serie["# YTID"], f"./{label}_raw")
-    #     start = serie["start_seconds"]
-    #     end = serie["end_seconds"]
-    #     in_path = f"./{label}_raw/{YTID}.mp3"
-    #     out_path = f"./{label}_cut/{YTID}.mp3"
-    #     out_dir = f"./{label}_cut/"
-    #     try:
-    #         os.mkdir(out_dir)
-    #     except:
-    #         pass
-    #     cut_audio(in_path, out_path, start, end)
-
 
 def rename_files(path_cut: str, csv_path: str) -> None:
     """
@@ -91,7 +76,11 @@ def rename_files(path_cut: str, csv_path: str) -> None:
     ## tels que '.' ou même '.mp3' ##
     """
     # TODO
-    pass
+    files = [file for file in os.listdir(path_cut) if os.path.isfile(file)]
+    df = pd.read_csv(path_cut)
+    for file in files:
+        df.str.match()
+        # result = re.match(file, string)
 
 
 if __name__ == "__main__":

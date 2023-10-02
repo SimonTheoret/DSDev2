@@ -29,9 +29,10 @@ def download_audio(YTID: str, path: str) -> None:
     - path : Le chemin d'accès au fichier où l'audio sera enregistré
     """
     # TODO
-    if exists(path + f"/{YTID}.mp3") == True:
+    if exists(path) == True:
         return
-
+    if path.endswith(".mp3"):
+        path = path[0:-4]
     url = "https://www.youtube.com/watch?v=" + YTID
     ydl_opts = {
         "format": "mp3/bestaudio/best",
@@ -42,14 +43,14 @@ def download_audio(YTID: str, path: str) -> None:
             }
         ],
         "quiet": True,
-        "outtmpl": path + f"/{YTID}",
+        "outtmpl": path,
     }
     with YoutubeDL(ydl_opts) as ydl:
-        class HiddenPrints(): # blocking print to stdout
-            try:
-                ydl.download(url)
-            except:
-                pass
+        # class HiddenPrints(): # blocking print to stdout
+        try:
+            ydl.download(url)
+        except:
+            pass
 
 
 def cut_audio(in_path: str, out_path: str, start: float, end: float) -> None:
@@ -72,17 +73,18 @@ def cut_audio(in_path: str, out_path: str, start: float, end: float) -> None:
             ).run()
 
 
-# if __name__ == "__main__":
-#     id = "dIjUtfSSJ6Q"
-#     path = "./output"
-#     download_audio(id, path)
-#     cut_audio(path+"/"+id+".mp3", "./output/out.mp3", 1, 3)
-
-class HiddenPrints(): # blocking print to stdout
+class HiddenPrints:  # blocking print to stdout
     def __enter__(self):
         self._original_stdout = sys.stdout
-        sys.stdout = open(os.devnull, 'w')
+        sys.stdout = open(os.devnull, "w")
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         sys.stdout.close()
         sys.stdout = self._original_stdout
+
+
+if __name__ == "__main__":
+    id = "dIjUtfSSJ6Q"
+    path = "./dirtest/out"
+    download_audio(id, path)
+    cut_audio(path + ".mp3", "./output/out.mp3", 1, 3)
