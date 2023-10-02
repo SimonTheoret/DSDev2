@@ -8,6 +8,7 @@ import csv
 import threading
 from tqdm import tqdm
 from os.path import exists
+import sys, os
 
 
 def download_audio(YTID: str, path: str) -> None:
@@ -28,7 +29,7 @@ def download_audio(YTID: str, path: str) -> None:
     - path : Le chemin d'accès au fichier où l'audio sera enregistré
     """
     # TODO
-    if exists(path+f"/{YTID}.mp3") == True:
+    if exists(path + f"/{YTID}.mp3") == True:
         return
 
     url = "https://www.youtube.com/watch?v=" + YTID
@@ -41,11 +42,10 @@ def download_audio(YTID: str, path: str) -> None:
             }
         ],
         "quiet": True,
-        "outtmpl": path+f"/{YTID}"
+        "outtmpl": path + f"/{YTID}",
     }
-    trap = io.StringIO()
     with YoutubeDL(ydl_opts) as ydl:
-        with redirect_stdout(trap):
+        class HiddenPrints(): # blocking print to stdout
             try:
                 ydl.download(url)
             except:
@@ -66,9 +66,10 @@ def cut_audio(in_path: str, out_path: str, start: float, end: float) -> None:
     # TODO
     #
     if exists(in_path) == True:
-        trap = io.StringIO()
-        with redirect_stdout(trap):
-            ffmpeg.input(in_path, ss=start, t=end - start).output(out_path, loglevel="quiet").run()
+        with HiddenPrints():
+            ffmpeg.input(in_path, ss=start, t=end - start).output(
+                out_path, loglevel="quiet"
+            ).run()
 
 
 # if __name__ == "__main__":
@@ -76,3 +77,12 @@ def cut_audio(in_path: str, out_path: str, start: float, end: float) -> None:
 #     path = "./output"
 #     download_audio(id, path)
 #     cut_audio(path+"/"+id+".mp3", "./output/out.mp3", 1, 3)
+
+class HiddenPrints(): # blocking print to stdout
+    def __enter__(self):
+        self._original_stdout = sys.stdout
+        sys.stdout = open(os.devnull, 'w')
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        sys.stdout.close()
+        sys.stdout = self._original_stdout
