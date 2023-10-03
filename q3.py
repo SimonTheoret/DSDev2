@@ -76,14 +76,27 @@ def rename_files(path_cut: str, csv_path: str) -> None:
     ## tels que '.' ou même '.mp3' ##
     """
     # TODO
-    files = [file for file in os.listdir(path_cut) if os.path.isfile(file)]
-    df = pd.read_csv(path_cut)
-    for file in files:
-        df.str.match()
-        # result = re.match(file, string)
-
+    df = pd.read_csv(csv_path)
+    df = df.set_index('# YTID')
+    print(df.head())
+    regex = r'^(.*?)\.([^\.]+)$'
+    for file in os.listdir(path_cut):
+        splitted = re.split(regex, file)
+        id, ext = [val for val in splitted if val]
+        print(id, ext)
+        rows = df.loc[id]
+        start = int(rows[' start_seconds'])
+        end = int( rows[' end_seconds'] )
+        duration = int(end-start)
+        e = "_"
+        new_file = id + e + str(start) + e + str( end ) +e + str( duration ) + ".mp3"
+        actual_path = os.path.join(path_cut, file)
+        print(actual_path)
+        new_file_path = os.path.join(path_cut, new_file)
+        print(new_file_path)
+        os.rename(actual_path, new_file_path)
 
 if __name__ == "__main__":
-    print(filter_df("audio_segments_clean.csv", "Laughter"))
-    data_pipeline("audio_segments_clean.csv", "Laughter")
-    rename_files("Laughter_cut", "audio_segments_clean.csv")
+    print(filter_df("test.csv", "Laughter"))
+    data_pipeline("test.csv", "Laughter")
+    rename_files("Laughter_cut", "test.csv")
